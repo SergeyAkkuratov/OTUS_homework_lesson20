@@ -4,7 +4,13 @@ module.exports = {
     es2021: true,
     "jest/globals": true,
   },
-  extends: ["airbnb-base", "eslint:recommended", "prettier"],
+  parser: '@typescript-eslint/parser',
+  extends: [
+    "airbnb-base", 
+    "plugin:jest/recommended", 
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
+  ],
   overrides: [
     {
       env: {
@@ -20,14 +26,10 @@ module.exports = {
     ecmaVersion: "latest",
     sourceType: "module",
   },
-  plugins: ["jest", "eslint-plugin-html"],
+  plugins: ["jest", "eslint-plugin-html", "@typescript-eslint"],
   rules: {
-    "import/extensions": [
-      "off",
-      {
-        ignorePackages: true,
-      },
-    ],
+    "import/no-unresolved": "off", // https://github.com/typescript-eslint/typescript-eslint/issues/1624
+    "import/extensions": ["warn", "never"], // https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/extensions.md
     "import/no-extraneous-dependencies": [
       "off",
       {

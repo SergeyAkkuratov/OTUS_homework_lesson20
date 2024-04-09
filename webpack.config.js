@@ -2,13 +2,18 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-  entry: "./src/index.js",
-  output: {
-    filename: "[name].js",
-    chunkFilename: "[name].chunk.js",
-    path: path.resolve(__dirname, "dist"),
-    clean: true,
+  entry: {
+    main: path.resolve(__dirname, "./src/index.ts"),
   },
+  output: {
+    path: path.resolve(__dirname, "./dist"),
+    filename: "[name].bundle.js",
+    clean: true
+  },
+  resolve: {
+    extensions: [".js", ".ts"],
+  },
+  devtool: 'inline-source-map',
   plugins: [
     new HtmlWebpackPlugin({
       template: "./src/index.html",
@@ -29,6 +34,13 @@ module.exports = {
           },
         ],
       },
+      {
+        test: /\.(?:js|mjs|cjs|ts)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader'
+        }
+      }
     ],
   },
   devServer: {
