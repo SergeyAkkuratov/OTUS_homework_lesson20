@@ -8,12 +8,12 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "./dist"),
     filename: "[name].bundle.js",
-    clean: true
+    clean: true,
   },
   resolve: {
     extensions: [".js", ".ts"],
   },
-  devtool: 'inline-source-map',
+  devtool: "inline-source-map",
   plugins: [
     new HtmlWebpackPlugin({
       template: "./src/index.html",
@@ -38,9 +38,9 @@ module.exports = {
         test: /\.(?:js|mjs|cjs|ts)$/,
         exclude: /node_modules/,
         use: {
-          loader: 'babel-loader'
-        }
-      }
+          loader: "babel-loader",
+        },
+      },
     ],
   },
   devServer: {

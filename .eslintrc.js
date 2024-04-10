@@ -4,12 +4,12 @@ module.exports = {
     es2021: true,
     "jest/globals": true,
   },
-  parser: '@typescript-eslint/parser',
+  parser: "@typescript-eslint/parser",
   extends: [
-    "airbnb-base", 
-    "plugin:jest/recommended", 
+    "airbnb-base",
+    "plugin:jest/recommended",
     "plugin:@typescript-eslint/recommended",
-    "prettier"
+    "prettier",
   ],
   overrides: [
     {

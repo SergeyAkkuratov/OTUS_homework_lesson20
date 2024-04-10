@@ -1,0 +1,51 @@
+:root {
+  --cell-size: 20px;
+  --field-width: 10;
+  --field-height: 10;
+}
+
+.settings {
+  width: 900px;
+  overflow: auto;
+  margin: 0 auto;
+  padding: 2rem 2rem;
+  border: 3px solid #333333;
+  border-radius: 2% 6% 5% 4% / 1% 1% 2% 4%;
+}
+
+.live-game-container {
+  width: calc(calc(var(--cell-size) + 2px) * var(--field-width));
+  overflow: auto;
+  margin: 0 auto;
+  padding: 2rem 2rem;
+  border: 3px solid #333333;
+  border-radius: 2% 6% 5% 4% / 1% 1% 2% 4%;
+
+  display: grid;
+  grid-template-columns: repeat(var(--field-width), auto);
+  grid-template-rows: repeat(var(--field-height), auto);
+  gap: 0;
+}
+
+.cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  border: 1px solid #333333;
+  border-radius: 10% 10% 10% 10%;
+}
+
+.dead {
+  background-color: aliceblue;
+}
+
+.alive {
+  background-color: black;
+}
+
+.mark-for-dead {
+  background-color: grey;
+}
+
+.mark-for-alive {
+  background-color: blue;
+}

@@ -6,5 +6,39 @@
     <title>Главная страница</title>
   </head>
   <body>
+    <form class="settings">
+      <input
+        id="width-input"
+        placeholder="Width"
+        type="number"
+        pattern="[0-9]+"
+        required
+      />
+      <input
+        id="height-input"
+        placeholder="Height"
+        type="number"
+        pattern="[0-9]+"
+        required
+      />
+      <button id="createGrid" type="button">Create Grid</button>
+      <br />
+      <input id="mark-check" type="checkbox" name="mark-check" />
+      <label for="mark-check"
+        >Указывать какие клетки изменятся на следующем тике?</label
+      >
+      <br />
+      <input
+        id="speed-input"
+        placeholder="Speed"
+        type="number"
+        pattern="[0-9]+"
+        value="10"
+        required
+      />
+      <button id="nextTic" type="button">Next tic</button>
+      <button id="start" type="button">Start</button>
+    </form>
+    <div class="live-game-container"></div>
   </body>
 </html>
