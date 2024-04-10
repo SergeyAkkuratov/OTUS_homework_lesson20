@@ -1,16 +1,27 @@
 :root {
   --cell-size: 20px;
-  --field-width: 10;
+  --field-width: 5;
   --field-height: 10;
 }
 
 .settings {
-  width: 900px;
   overflow: auto;
   margin: 0 auto;
   padding: 2rem 2rem;
   border: 3px solid #333333;
   border-radius: 2% 6% 5% 4% / 1% 1% 2% 4%;
+}
+
+.settings-block {
+  padding: 2px 2px;
+}
+
+.cell-legend {
+  display: inline-block;
+  width: var(--cell-size);
+  height: var(--cell-size);
+  border: 1px solid #333333;
+  border-radius: 10% 10% 10% 10%;
 }
 
 .live-game-container {
@@ -18,9 +29,6 @@
   overflow: auto;
   margin: 0 auto;
   padding: 2rem 2rem;
-  border: 3px solid #333333;
-  border-radius: 2% 6% 5% 4% / 1% 1% 2% 4%;
-
   display: grid;
   grid-template-columns: repeat(var(--field-width), auto);
   grid-template-rows: repeat(var(--field-height), auto);
@@ -69,10 +77,12 @@
   border-radius: 4px;
   padding: 4px;
 }
+
 .context-menu-open ul {
   padding: 0;
   margin: 0;
 }
+
 .context-menu-open ul li {
   cursor: pointer;
   list-style: none;
@@ -80,9 +90,11 @@
   margin: 0;
   border-bottom: 1px solid #bfe2ff;
 }
+
 .context-menu-open ul li:last-child {
   border-bottom: 1px solid transparent;
 }
+
 .context-menu-open ul li:hover {
   background-color: #bfe2ff;
 }

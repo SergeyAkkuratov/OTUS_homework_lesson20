@@ -46,7 +46,7 @@ startButton?.addEventListener("click", () => {
       1000 / Number(speedElement.value),
     );
     startFlag = true;
-    startButton.innerText = "Stop";
+    startButton.innerText = "Стоп";
   } else {
     clearInterval(timerId);
     startFlag = false;

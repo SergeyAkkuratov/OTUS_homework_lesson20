@@ -48,8 +48,8 @@ export default class GameLive {
 
   fillGrid() {
     this.grid = [];
-    for (let x = 0; x < this.width; x += 1) {
-      for (let y = 0; y < this.height; y += 1) {
+    for (let y = 0; y < this.height; y += 1) {
+      for (let x = 0; x < this.width; x += 1) {
         this.grid.push(new Cell(x, y));
       }
     }
