@@ -23,7 +23,6 @@ const liveApp = new GameLive(
   Number(heightInput.value),
   markCheckbox.checked,
 );
-liveApp.showGrid();
 
 document.getElementById("createGrid")?.addEventListener("click", () => {
   root.style.setProperty("--field-width", widthInput.value);
@@ -44,7 +43,7 @@ startButton?.addEventListener("click", () => {
       () => {
         liveApp.nextTic();
       },
-      Number(speedElement.value) * 100,
+      1000 / Number(speedElement.value),
     );
     startFlag = true;
     startButton.innerText = "Stop";

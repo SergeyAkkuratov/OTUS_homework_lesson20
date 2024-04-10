@@ -20,17 +20,27 @@ export default class Cell {
 
   coorY: number;
 
+  marked = false;
+
   constructor(coorX: number, coorY: number, type?: CellType) {
     this.coorX = coorX;
     this.coorY = coorY;
     this.type = type ?? CellType.dead;
     this.typeNextTic = CellType.unknown;
 
-    this.cellElement = document.createElement("cell");
-    this.cellElement.classList.add("cell");
-    this.cellElement.classList.add(this.type);
-    this.cellElement.setAttribute("coor-x", `${this.coorX}`);
-    this.cellElement.setAttribute("coor-y", `${this.coorY}`);
+    this.cellElement = this.createCellElement();
+  }
+
+  createCellElement(): HTMLElement {
+    const element = document.createElement("cell");
+
+    element.classList.add("cell");
+    element.classList.add(this.type);
+    element.setAttribute("coor-x", `${this.coorX}`);
+    element.setAttribute("coor-y", `${this.coorY}`);
+    element.title = `Cell(${this.coorX},${this.coorY})`;
+
+    return element;
   }
 
   onClick() {
@@ -60,6 +70,7 @@ export default class Cell {
   }
 
   mark(type: CellType) {
+    this.marked = true;
     this.typeNextTic = type;
     this.cellElement.classList.add(type);
   }
@@ -80,6 +91,7 @@ export default class Cell {
   }
 
   markClear() {
+    this.marked = false;
     this.typeNextTic = CellType.unknown;
     this.cellElement.classList.remove(CellType.markForAlive);
     this.cellElement.classList.remove(CellType.markForDead);

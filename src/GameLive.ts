@@ -1,5 +1,6 @@
 /* eslint-disable no-nested-ternary */
 import Cell, { CellType } from "./Cell";
+import FIGURES from "./figures";
 
 export default class GameLive {
   container: HTMLElement;
@@ -11,6 +12,8 @@ export default class GameLive {
   grid: Array<Cell> = [];
 
   markable: boolean;
+
+  cellToUpdate: Set<Cell> = new Set();
 
   constructor(
     container: HTMLElement,
@@ -33,9 +36,14 @@ export default class GameLive {
           Number(element.getAttribute("coor-y")),
         );
         cell.onClick();
+        this.cellUpdateCheck(cell);
         this.markGrid();
       }
     });
+
+    this.contextMenuInit();
+
+    this.showGrid();
   }
 
   fillGrid() {
@@ -55,13 +63,12 @@ export default class GameLive {
   }
 
   markGrid() {
-    const cellToUpdate: Set<Cell> = new Set();
-    this.grid
-      .filter((cell) => cell.type === CellType.alive)
-      .forEach((cell) => {
-        this.getCellNeighbours(cell).forEach((el) => cellToUpdate.add(el));
-      });
-    cellToUpdate.forEach((cell) => {
+    const cells: Set<Cell> = new Set();
+    [...this.cellToUpdate].forEach((cell) => {
+      cells.add(cell);
+      this.getCellNeighbours(cell).forEach(cells.add, cells);
+    });
+    cells.forEach((cell) => {
       cell.markClear();
       const aliveCellNeighbours = this.getCellNeighbours(cell).reduce(
         (result, el: Cell) =>
@@ -82,6 +89,14 @@ export default class GameLive {
     });
   }
 
+  cellUpdateCheck(cell: Cell) {
+    if (cell.type === CellType.alive) {
+      this.cellToUpdate.add(cell);
+    } else if (cell.type === CellType.dead) {
+      this.cellToUpdate.delete(cell);
+    }
+  }
+
   getCellNeighbours(cell: Cell) {
     return [
       this.getCell(cell.coorX - 1, cell.coorY - 1),
@@ -96,7 +111,12 @@ export default class GameLive {
   }
 
   nextTic() {
-    this.grid.forEach((cell) => cell.changeType());
+    this.grid
+      .filter((cell) => cell.marked)
+      .forEach((cell) => {
+        cell.changeType();
+        this.cellUpdateCheck(cell);
+      });
     this.markGrid();
   }
 
@@ -121,5 +141,52 @@ export default class GameLive {
     } else {
       return result;
     }
+  }
+
+  insertFigure(startCell: Cell, figureCoor: string) {
+    figureCoor.split(";").forEach((coorPair) => {
+      const [x, y] = coorPair.split(",");
+      const cell = this.getCell(
+        Number(x) + startCell.coorX,
+        Number(y) + startCell.coorY,
+      );
+      cell.setType(CellType.alive);
+      this.cellUpdateCheck(cell);
+    });
+  }
+
+  contextMenuInit() {
+    const contextMenu = document.querySelector(
+      ".context-menu-open",
+    ) as HTMLElement;
+    const menuList = contextMenu.querySelector("ul") as HTMLElement;
+    let currentCell: Cell;
+
+    Object.keys(FIGURES).forEach((figureKey) => {
+      const figure = FIGURES[figureKey];
+      menuList.innerHTML += `<li figure="${figureKey}">${figure.name}</li>`;
+    });
+
+    menuList.addEventListener("click", (event) => {
+      const li = event.target as HTMLElement;
+      const figure = FIGURES[li.getAttribute("figure")!];
+      this.insertFigure(currentCell, figure.coordinates);
+    });
+
+    this.container.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      const element = e.target as HTMLElement;
+      currentCell = this.getCell(
+        Number(element.getAttribute("coor-x")),
+        Number(element.getAttribute("coor-y")),
+      );
+      contextMenu.style.left = `${e.clientX}px`;
+      contextMenu.style.top = `${e.clientY}px`;
+      contextMenu.style.display = "block";
+    });
+
+    window.addEventListener("click", () => {
+      contextMenu.style.display = "none";
+    });
   }
 }
