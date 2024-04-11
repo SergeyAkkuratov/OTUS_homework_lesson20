@@ -1,10 +1,10 @@
 :root {
   --cell-size: 20px;
-  --field-width: 5;
-  --field-height: 10;
+  --field-width: 40;
+  --field-height: 25;
 }
 
-.settings {
+.main {
   overflow: auto;
   margin: 0 auto;
   padding: 2rem 2rem;
@@ -64,6 +64,10 @@
 
 .mark-for-alive {
   background-color: blue;
+}
+
+.invisible {
+  display: none;
 }
 
 .context-menu-open {

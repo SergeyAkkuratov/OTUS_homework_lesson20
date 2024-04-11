@@ -6,64 +6,6 @@
     <title>Главная страница</title>
   </head>
   <body>
-    <div class="settings">
-      <div class="settings-block">
-        <input id="mark-check" type="checkbox" name="mark-check" />
-        <label for="mark-check">
-          Указывать какие клетки изменятся на следующем тике
-        </label>
-      </div>
-      <div class="settings-block">
-        <label>Рзамер сетки :</label>
-        <input
-          id="width-input"
-          placeholder="Width"
-          type="number"
-          pattern="[0-9]+"
-          required
-        />
-        X
-        <input
-          id="height-input"
-          placeholder="Height"
-          type="number"
-          pattern="[0-9]+"
-          required
-        />
-        <button id="createGrid" type="button">Создать новую сетку</button>
-      </div>
-      <div class="settings-block">
-        <label>Скорость :</label>
-        <input
-          id="speed-input"
-          type="range"
-          min="0"
-          value="10"
-          max="20"
-          step="5"
-        />
-      </div>
-      <div class="settings-block">
-        <button id="nextTic" type="button">Следующий тик</button>
-        <button id="start" type="button">Старт</button>
-      </div>
-      <div class="settings-block">
-        <label>Легенда:</label>
-        <cell class="cell-legend dead" title="Мёртвая клетка"></cell>
-        <cell class="cell-legend alive" title="Живая клетка"></cell>
-        <cell
-          class="cell-legend mark-for-dead"
-          title="Умрёт на следующем тике"
-        ></cell>
-        <cell
-          class="cell-legend mark-for-alive"
-          title="Оживёт на следующем тике"
-        ></cell>
-      </div>
-      <div class="live-game-container"></div>
-      <div class="context-menu-open">
-        <ul></ul>
-      </div>
-    </div>
+    <div class="main"></div>
   </body>
 </html>

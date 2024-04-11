@@ -9,11 +9,13 @@ export default class GameLive {
 
   height: number;
 
-  grid: Array<Cell> = [];
+  grid: Array<Array<Cell>> = [];
 
   markable: boolean;
 
-  cellToUpdate: Set<Cell> = new Set();
+  cellToMark: Set<Cell> = new Set();
+
+  cellToChangeNextTic: Set<Cell> = new Set();
 
   constructor(
     container: HTMLElement,
@@ -42,32 +44,70 @@ export default class GameLive {
     });
 
     this.contextMenuInit();
+  }
 
+  fillGrid(width?: number, height?: number) {
+    this.width = width ?? this.width;
+    this.height = height ?? this.height;
+    this.grid = [];
+    for (let y = 0; y < this.height; y += 1) {
+      this.grid[y] = [];
+      for (let x = 0; x < this.width; x += 1) {
+        this.grid[y][x] = new Cell(x, y);
+      }
+    }
     this.showGrid();
   }
 
-  fillGrid() {
-    this.grid = [];
-    for (let y = 0; y < this.height; y += 1) {
-      for (let x = 0; x < this.width; x += 1) {
-        this.grid.push(new Cell(x, y));
+  resizeWidth(width: number) {
+    if (this.width !== width) {
+      if (this.width > width) {
+        this.grid.forEach((row) => row.splice(width, this.width - width));
+      } else {
+        this.grid.forEach((row, y) => {
+          for (let x = this.width; x < width; x += 1) {
+            row.push(new Cell(x, y));
+          }
+        });
       }
+      this.width = width;
+      this.showGrid();
+    }
+  }
+
+  resizeHeight(height: number) {
+    if (this.height !== height) {
+      if (this.height > height) {
+        this.grid.splice(height, this.height - height);
+      } else {
+        for (let y = this.height; y < height; y += 1) {
+          this.grid[y] = [];
+          for (let x = 0; x < this.width; x += 1) {
+            this.grid[y][x] = new Cell(x, y);
+          }
+        }
+      }
+      this.height = height;
+      this.showGrid();
     }
   }
 
   showGrid() {
     this.container.innerHTML = "";
-    this.grid.forEach((cell) => {
-      this.container.appendChild(cell.getCellElement());
+    this.grid.forEach((row) => {
+      row.forEach((cell) => this.container.appendChild(cell.getCellElement()));
     });
   }
 
   markGrid() {
+    this.cellToChangeNextTic.clear();
+
     const cells: Set<Cell> = new Set();
-    [...this.cellToUpdate].forEach((cell) => {
+    [...this.cellToMark].forEach((cell) => {
       cells.add(cell);
       this.getCellNeighbours(cell).forEach(cells.add, cells);
     });
+
     cells.forEach((cell) => {
       cell.markClear();
       const aliveCellNeighbours = this.getCellNeighbours(cell).reduce(
@@ -81,19 +121,21 @@ export default class GameLive {
       ) {
         if (this.markable) cell.mark(CellType.markForDead);
         else cell.mark(CellType.markForDeadInvisible);
+        this.cellToChangeNextTic.add(cell);
       }
       if (cell.type === CellType.dead && aliveCellNeighbours === 3) {
         if (this.markable) cell.mark(CellType.markForAlive);
         else cell.mark(CellType.markForAliveInvisible);
+        this.cellToChangeNextTic.add(cell);
       }
     });
   }
 
   cellUpdateCheck(cell: Cell) {
     if (cell.type === CellType.alive) {
-      this.cellToUpdate.add(cell);
+      this.cellToMark.add(cell);
     } else if (cell.type === CellType.dead) {
-      this.cellToUpdate.delete(cell);
+      this.cellToMark.delete(cell);
     }
   }
 
@@ -110,14 +152,24 @@ export default class GameLive {
     ];
   }
 
-  nextTic() {
-    this.grid
-      .filter((cell) => cell.marked)
-      .forEach((cell) => {
-        cell.changeType();
-        this.cellUpdateCheck(cell);
-      });
+  nextTic(): boolean {
+    this.grid.forEach((row) => {
+      row
+        .filter((cell) => cell.marked)
+        .forEach((cell) => {
+          cell.changeType();
+          this.cellUpdateCheck(cell);
+        });
+    });
+
+    this.cellToChangeNextTic.forEach((cell) => {
+      cell.changeType();
+      this.cellUpdateCheck(cell);
+    });
+
     this.markGrid();
+
+    return this.cellToChangeNextTic.size > 0;
   }
 
   getCell(coorX: number, coorY: number): Cell {
@@ -133,9 +185,7 @@ export default class GameLive {
         : coorY < 0
           ? this.height + coorY
           : coorY - this.height;
-    const result: Cell = this.grid.find(
-      (cell) => cell.coorX === x && cell.coorY === y,
-    )!;
+    const result: Cell = this.grid[y][x];
     if (result == null || result === undefined) {
       throw Error(`Не смогли получить клетку по координатам x: ${x}, y: ${y}`);
     } else {
@@ -173,15 +223,15 @@ export default class GameLive {
       this.insertFigure(currentCell, figure.coordinates);
     });
 
-    this.container.addEventListener("contextmenu", (e) => {
-      e.preventDefault();
-      const element = e.target as HTMLElement;
+    this.container.addEventListener("contextmenu", (event) => {
+      event.preventDefault();
+      const element = event.target as HTMLElement;
       currentCell = this.getCell(
         Number(element.getAttribute("coor-x")),
         Number(element.getAttribute("coor-y")),
       );
-      contextMenu.style.left = `${e.clientX}px`;
-      contextMenu.style.top = `${e.clientY}px`;
+      contextMenu.style.left = `${event.clientX}px`;
+      contextMenu.style.top = `${event.clientY}px`;
       contextMenu.style.display = "block";
     });
 
