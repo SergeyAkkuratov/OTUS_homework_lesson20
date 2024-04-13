@@ -1,5 +1,5 @@
 /* eslint-disable no-nested-ternary */
-import Cell, { CellType } from "./Cell";
+import Cell, { CellType, MarkCellType } from "./Cell";
 import { Figure } from "./figures";
 
 export default class GameLive {
@@ -97,7 +97,7 @@ export default class GameLive {
   showGrid() {
     this.container.innerHTML = "";
     this.grid.forEach((row) => {
-      row.forEach((cell) => this.container.appendChild(cell.getCellElement()));
+      row.forEach((cell) => this.container.appendChild(cell.cellElement));
     });
   }
 
@@ -111,7 +111,6 @@ export default class GameLive {
     });
 
     cells.forEach((cell) => {
-      cell.markClear();
       const aliveCellNeighbours = this.getCellNeighbours(cell).reduce(
         (result, el: Cell) =>
           el.type === CellType.alive ? result + 1 : result,
@@ -121,13 +120,13 @@ export default class GameLive {
         cell.type === CellType.alive &&
         (aliveCellNeighbours < 2 || aliveCellNeighbours > 3)
       ) {
-        if (this.markable) cell.mark(CellType.markForDead);
-        else cell.mark(CellType.markForDeadInvisible);
+        if (this.markable) cell.mark(MarkCellType.markForDead);
+        else cell.mark(MarkCellType.markForDeadInvisible);
         this.cellToChangeNextTic.add(cell);
       }
       if (cell.type === CellType.dead && aliveCellNeighbours === 3) {
-        if (this.markable) cell.mark(CellType.markForAlive);
-        else cell.mark(CellType.markForAliveInvisible);
+        if (this.markable) cell.mark(MarkCellType.markForAlive);
+        else cell.mark(MarkCellType.markForAliveInvisible);
         this.cellToChangeNextTic.add(cell);
       }
     });
@@ -155,17 +154,8 @@ export default class GameLive {
   }
 
   nextTic(): boolean {
-    this.grid.forEach((row) => {
-      row
-        .filter((cell) => cell.marked)
-        .forEach((cell) => {
-          cell.changeType();
-          this.cellUpdateCheck(cell);
-        });
-    });
-
     this.cellToChangeNextTic.forEach((cell) => {
-      cell.changeType();
+      cell.processMark();
       this.cellUpdateCheck(cell);
     });
 

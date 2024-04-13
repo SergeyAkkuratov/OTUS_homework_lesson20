@@ -115,13 +115,16 @@ export default class MainApp {
           event.preventDefault();
           this.startButtonClick();
           break;
-        case "ArrowRight":
+        case "ArrowUp":
           this.speedElement.stepUp();
           this.speedElement.dispatchEvent(new Event("change"));
           break;
-        case "ArrowLeft":
+        case "ArrowDown":
           this.speedElement.stepDown();
           this.speedElement.dispatchEvent(new Event("change"));
+          break;
+        case "ArrowRight":
+          this.nextTicButton.click();
           break;
         default:
       }
