@@ -1,6 +1,16 @@
 import GameLive from "./GameLive";
 import FIGURES from "./figures";
 
+function disableButton(button: HTMLButtonElement) {
+  // eslint-disable-next-line no-param-reassign
+  button.disabled = true;
+}
+
+function enableButton(button: HTMLButtonElement) {
+  // eslint-disable-next-line no-param-reassign
+  button.disabled = false;
+}
+
 export default class MainApp {
   readonly appTemplate = `
     <div class="settings-block">
@@ -31,8 +41,10 @@ export default class MainApp {
     <cell class="cell-legend mark-for-dead invisible" title="Умрёт на следующем тике"></cell>
     <cell class="cell-legend mark-for-alive invisible" title="Оживёт на следующем тике"></cell>
   </div>
-  <div class="live-game-container"></div>
-  <div class="context-menu-open"><ul></ul></div>`;
+  <div class="settings-block figures">
+    <label>Вставить фигуру: </label>
+  </div>
+  <div class="live-game-container"></div>`;
 
   readonly root: HTMLElement;
 
@@ -51,6 +63,8 @@ export default class MainApp {
   nextTicButton: HTMLButtonElement;
 
   legendBlock: HTMLElement;
+
+  figuresBlock: HTMLElement;
 
   startFlag = false;
 
@@ -83,6 +97,7 @@ export default class MainApp {
       ".nextTic",
     ) as HTMLButtonElement;
     this.legendBlock = this.root.querySelector(".legend") as HTMLElement;
+    this.figuresBlock = this.root.querySelector(".figures") as HTMLElement;
 
     this.widthInput.value = getComputedStyle(this.root).getPropertyValue(
       "--field-width",
@@ -90,6 +105,8 @@ export default class MainApp {
     this.heightInput.value = getComputedStyle(this.root).getPropertyValue(
       "--field-height",
     );
+
+    this.createFiguresButtons();
 
     // listeners init
     document.addEventListener("keyup", (event) => {
@@ -190,10 +207,18 @@ export default class MainApp {
       this.gameStart();
       this.startFlag = true;
       this.startButton.innerText = "Стоп";
+      disableButton(this.nextTicButton);
+      disableButton(this.gridButton);
+      this.figuresBlock.querySelectorAll("button").forEach(button => disableButton(button))
+      this.root.classList.toggle("run");
     } else {
       this.gameStop();
       this.startFlag = false;
       this.startButton.innerText = "Старт";
+      enableButton(this.nextTicButton);
+      enableButton(this.gridButton);
+      this.figuresBlock.querySelectorAll("button").forEach(button => enableButton(button))
+      this.root.classList.toggle("run");
     }
   }
 
@@ -210,5 +235,23 @@ export default class MainApp {
 
   gameStop() {
     if (this.timerId) clearInterval(this.timerId);
+  }
+
+  createFiguresButtons() {
+    Object.keys(FIGURES).forEach((key) => {
+      const figure = FIGURES[key];
+
+      const button = document.createElement("button");
+      button.innerText = figure.name;
+      button.classList.add("figure");
+      button.classList.add(key);
+      button.type = "button";
+
+      button.addEventListener('click', () => {
+        this.gameLive.showInsertFigure(figure);
+      })
+
+      this.figuresBlock.appendChild(button);
+    })
   }
 }

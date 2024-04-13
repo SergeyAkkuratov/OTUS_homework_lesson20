@@ -1,9 +1,9 @@
-interface Figure {
+export interface Figure {
   name: string;
   coordinates: string;
 }
 
-interface Figures {
+export interface Figures {
   [key: string]: Figure;
 }
 

@@ -1,6 +1,6 @@
 /* eslint-disable no-nested-ternary */
 import Cell, { CellType } from "./Cell";
-import FIGURES from "./figures";
+import { Figure } from "./figures";
 
 export default class GameLive {
   container: HTMLElement;
@@ -11,11 +11,15 @@ export default class GameLive {
 
   grid: Array<Array<Cell>> = [];
 
+  originalGrid: Array<Array<Cell>> = [];
+
   markable: boolean;
 
   cellToMark: Set<Cell> = new Set();
 
   cellToChangeNextTic: Set<Cell> = new Set();
+
+  currentHoverCell: Cell | undefined;
 
   constructor(
     container: HTMLElement,
@@ -31,7 +35,7 @@ export default class GameLive {
     this.fillGrid();
 
     this.container.addEventListener("click", (event) => {
-      if (event.target instanceof HTMLElement) {
+      if (event.target instanceof HTMLElement && !this.currentHoverCell) {
         const element = event.target as HTMLElement;
         const cell = this.getCell(
           Number(element.getAttribute("coor-x")),
@@ -42,8 +46,6 @@ export default class GameLive {
         this.markGrid();
       }
     });
-
-    this.contextMenuInit();
   }
 
   fillGrid(width?: number, height?: number) {
@@ -205,38 +207,61 @@ export default class GameLive {
     });
   }
 
-  contextMenuInit() {
-    const contextMenu = document.querySelector(
-      ".context-menu-open",
-    ) as HTMLElement;
-    const menuList = contextMenu.querySelector("ul") as HTMLElement;
-    let currentCell: Cell;
-
-    Object.keys(FIGURES).forEach((figureKey) => {
-      const figure = FIGURES[figureKey];
-      menuList.innerHTML += `<li figure="${figureKey}">${figure.name}</li>`;
-    });
-
-    menuList.addEventListener("click", (event) => {
-      const li = event.target as HTMLElement;
-      const figure = FIGURES[li.getAttribute("figure")!];
-      this.insertFigure(currentCell, figure.coordinates);
-    });
-
-    this.container.addEventListener("contextmenu", (event) => {
-      event.preventDefault();
-      const element = event.target as HTMLElement;
-      currentCell = this.getCell(
-        Number(element.getAttribute("coor-x")),
-        Number(element.getAttribute("coor-y")),
+  deleteFigure(startCell: Cell, figureCoor: string) {
+    figureCoor.split(";").forEach((coorPair) => {
+      const [x, y] = coorPair.split(",");
+      const cell = this.getCell(
+        Number(x) + startCell.coorX,
+        Number(y) + startCell.coorY,
       );
-      contextMenu.style.left = `${event.clientX}px`;
-      contextMenu.style.top = `${event.clientY}px`;
-      contextMenu.style.display = "block";
+      cell.setType(CellType.dead);
+      this.cellUpdateCheck(cell);
     });
+  }
 
-    window.addEventListener("click", () => {
-      contextMenu.style.display = "none";
-    });
+  showInsertFigure(figure: Figure) {
+    const onMouseover = (event: MouseEvent) => {
+      if (!this.currentHoverCell) {
+        const element = event.target as HTMLElement;
+        this.currentHoverCell = this.getCell(
+          Number(element.getAttribute("coor-x")),
+          Number(element.getAttribute("coor-y")),
+        );
+        this.insertFigure(this.currentHoverCell, figure.coordinates);
+      }
+    }
+
+    const onMouseout = (event: MouseEvent) => {
+      if (this.currentHoverCell) {
+        this.deleteFigure(this.currentHoverCell, figure.coordinates);
+        const element = event.relatedTarget as HTMLElement;
+        if (element?.tagName === 'CELL') {
+          this.currentHoverCell = this.getCell(
+            Number(element.getAttribute("coor-x")),
+            Number(element.getAttribute("coor-y")),
+          );
+          this.insertFigure(this.currentHoverCell, figure.coordinates);
+        } else {
+          this.currentHoverCell = undefined;
+          this.originalGrid = [];
+        }
+      }
+    }
+
+    const onClick = (event: MouseEvent) => {
+      if(this.currentHoverCell){
+        event.preventDefault();
+        this.container.removeEventListener('mouseover', onMouseover);
+        this.container.removeEventListener('mouseout', onMouseout);
+        this.currentHoverCell = undefined;
+        window.removeEventListener("click", onClick);
+      }
+    }
+    
+    this.container.addEventListener('mouseover', onMouseover);
+
+    this.container.addEventListener('mouseout', onMouseout);
+
+    window.addEventListener("click", onClick);
   }
 }
