@@ -1,12 +1,12 @@
 import GameLive from "./GameLive";
 import FIGURES from "./figures";
 
-function disableButton(button: HTMLButtonElement) {
+export function disableButton(button: HTMLButtonElement) {
   // eslint-disable-next-line no-param-reassign
   button.disabled = true;
 }
 
-function enableButton(button: HTMLButtonElement) {
+export function enableButton(button: HTMLButtonElement) {
   // eslint-disable-next-line no-param-reassign
   button.disabled = false;
 }
@@ -28,7 +28,7 @@ export default class MainApp {
   </div>
   <div class="settings-block">
     <label>Скорость :</label>
-    <input class="speed-input" type="range" min="0" value="10" max="18" step="2" />
+    <input class="speed-input" type="range" min="0" value="10" max="45" step="5" />
   </div>
   <div class="settings-block">
     <button class="nextTic" type="button">Следующий тик</button>
@@ -46,7 +46,7 @@ export default class MainApp {
   </div>
   <div class="live-game-container"></div>`;
 
-  readonly root: HTMLElement;
+  readonly container: HTMLElement;
 
   widthInput: HTMLInputElement;
 
@@ -68,48 +68,56 @@ export default class MainApp {
 
   startFlag = false;
 
-  timerId!: NodeJS.Timeout;
+  timerId!: NodeJS.Timeout | undefined;
 
   gameLive!: GameLive;
 
   constructor(root: HTMLElement) {
-    this.root = root;
-    this.root.innerHTML = this.appTemplate;
+    this.container = root;
+    this.container.innerHTML = this.appTemplate;
 
     // class fields init
-    this.widthInput = this.root.querySelector(
+    this.widthInput = this.container.querySelector(
       ".width-input",
     ) as HTMLInputElement;
-    this.heightInput = this.root.querySelector(
+    this.heightInput = this.container.querySelector(
       ".height-input",
     ) as HTMLInputElement;
-    this.speedElement = this.root.querySelector(
+    this.speedElement = this.container.querySelector(
       ".speed-input",
     ) as HTMLInputElement;
-    this.markCheckbox = this.root.querySelector(
+    this.markCheckbox = this.container.querySelector(
       ".mark-check",
     ) as HTMLInputElement;
-    this.startButton = this.root.querySelector(".start") as HTMLButtonElement;
-    this.gridButton = this.root.querySelector(
+    this.startButton = this.container.querySelector(
+      ".start",
+    ) as HTMLButtonElement;
+    this.gridButton = this.container.querySelector(
       ".createGrid",
     ) as HTMLButtonElement;
-    this.nextTicButton = this.root.querySelector(
+    this.nextTicButton = this.container.querySelector(
       ".nextTic",
     ) as HTMLButtonElement;
-    this.legendBlock = this.root.querySelector(".legend") as HTMLElement;
-    this.figuresBlock = this.root.querySelector(".figures") as HTMLElement;
+    this.legendBlock = this.container.querySelector(".legend") as HTMLElement;
+    this.figuresBlock = this.container.querySelector(".figures") as HTMLElement;
 
-    this.widthInput.value = getComputedStyle(this.root).getPropertyValue(
+    this.widthInput.value = getComputedStyle(this.container).getPropertyValue(
       "--field-width",
     );
-    this.heightInput.value = getComputedStyle(this.root).getPropertyValue(
+    this.heightInput.value = getComputedStyle(this.container).getPropertyValue(
       "--field-height",
     );
 
-    this.createFiguresButtons();
+    Object.keys(FIGURES).forEach((key) => {
+      this.figuresBlock.innerHTML += `<button figureid="${key}" class="figure" type="button">${FIGURES[key].name}</button>`;
+    });
+
+    disableButton(this.nextTicButton);
+    disableButton(this.startButton);
+    disableButton(this.gridButton);
 
     // listeners init
-    document.addEventListener("keyup", (event) => {
+    window.addEventListener("keyup", (event) => {
       switch (event.code) {
         case "Space":
           event.preventDefault();
@@ -138,58 +146,11 @@ export default class MainApp {
         .querySelector(".mark-for-alive")
         ?.classList.toggle("invisible");
     });
-
-    this.widthInput.addEventListener("change", () => {
-      this.root.style.setProperty("--field-width", this.widthInput.value);
-      this.gameLive.resizeWidth(Number(this.widthInput.value));
-    });
-
-    this.heightInput.addEventListener("change", () => {
-      this.root.style.setProperty("--field-height", this.heightInput.value);
-      this.gameLive.resizeHeight(Number(this.heightInput.value));
-    });
-
-    this.gridButton.addEventListener("click", () => {
-      this.root.style.setProperty("--field-width", this.widthInput.value);
-      this.root.style.setProperty("--field-height", this.heightInput.value);
-
-      if (!this.gameLive) {
-        this.gameLive = new GameLive(
-          document.querySelector(".live-game-container") as HTMLElement,
-          Number(this.widthInput.value),
-          Number(this.heightInput.value),
-          this.markCheckbox.checked,
-        );
-      }
-      this.gameLive.fillGrid(
-        Number(this.widthInput.value),
-        Number(this.heightInput.value),
-      );
-    });
-
-    this.speedElement.addEventListener("change", () => {
-      if (this.startFlag) {
-        this.gameStop();
-        this.gameStart();
-      }
-    });
-
-    this.nextTicButton.addEventListener("click", () => {
-      this.gameLive.nextTic();
-    });
-
-    this.startButton.addEventListener("click", () => {
-      this.startButtonClick();
-    });
-
-    this.markCheckbox.addEventListener("change", () => {
-      this.gameLive.markable = this.markCheckbox.checked;
-    });
   }
 
   start() {
     this.gameLive = new GameLive(
-      document.querySelector(".live-game-container") as HTMLElement,
+      this.container.querySelector(".live-game-container") as HTMLElement,
       Number(this.widthInput.value),
       Number(this.heightInput.value),
       this.markCheckbox.checked,
@@ -203,6 +164,85 @@ export default class MainApp {
       this.gameLive.getCell(34, 20),
       FIGURES.EATER_1.coordinates,
     );
+
+    enableButton(this.nextTicButton);
+    enableButton(this.startButton);
+    enableButton(this.gridButton);
+
+    this.widthInput.addEventListener("change", () => {
+      this.container.style.setProperty("--field-width", this.widthInput.value);
+      this.gameLive.resizeWidth(Number(this.widthInput.value));
+    });
+
+    this.heightInput.addEventListener("change", () => {
+      this.container.style.setProperty(
+        "--field-height",
+        this.heightInput.value,
+      );
+      this.gameLive.resizeHeight(Number(this.heightInput.value));
+    });
+
+    this.nextTicButton.addEventListener("click", () => {
+      this.gameLive.nextTic();
+    });
+
+    this.startButton.addEventListener("click", () => {
+      this.startButtonClick();
+    });
+
+    this.markCheckbox.addEventListener("change", () => {
+      this.gameLive.markable = this.markCheckbox.checked;
+    });
+
+    this.gridButton.addEventListener("click", () => {
+      this.container.style.setProperty("--field-width", this.widthInput.value);
+      this.container.style.setProperty(
+        "--field-height",
+        this.heightInput.value,
+      );
+
+      this.gameLive.fillGrid(
+        Number(this.widthInput.value),
+        Number(this.heightInput.value),
+      );
+    });
+
+    this.speedElement.addEventListener("change", () => {
+      if (this.startFlag) {
+        this.gameStop();
+        this.gameStart();
+      }
+    });
+
+    this.figuresBlock.addEventListener("click", (event: MouseEvent) => {
+      if (event.target instanceof HTMLButtonElement) {
+        event.stopPropagation();
+        const button = event.target as HTMLButtonElement;
+        Array.from(this.figuresBlock.children)
+          .filter((child) => child instanceof HTMLButtonElement)
+          .forEach((child) => {
+            disableButton(child as HTMLButtonElement);
+          });
+        const stopShowingFunction = this.gameLive.showFigure(
+          FIGURES[button.getAttribute("figureId")!],
+        );
+
+        const onClick = (event2: MouseEvent) => {
+          event2.preventDefault();
+          stopShowingFunction();
+
+          Array.from(this.figuresBlock.children)
+            .filter((child) => child instanceof HTMLButtonElement)
+            .forEach((child) => {
+              enableButton(child as HTMLButtonElement);
+            });
+
+          window.removeEventListener("click", onClick);
+        };
+
+        window.addEventListener("click", onClick);
+      }
+    });
   }
 
   startButtonClick() {
@@ -212,71 +252,42 @@ export default class MainApp {
       this.startButton.innerText = "Стоп";
       disableButton(this.nextTicButton);
       disableButton(this.gridButton);
-      this.figuresBlock.querySelectorAll("button").forEach(button => disableButton(button))
-      this.root.classList.toggle("run");
+      this.figuresBlock
+        .querySelectorAll("button")
+        .forEach((button) => disableButton(button));
+      this.container.classList.toggle("run");
     } else {
       this.gameStop();
       this.startFlag = false;
       this.startButton.innerText = "Старт";
       enableButton(this.nextTicButton);
       enableButton(this.gridButton);
-      this.figuresBlock.querySelectorAll("button").forEach(button => enableButton(button))
-      this.root.classList.toggle("run");
+      this.figuresBlock
+        .querySelectorAll("button")
+        .forEach((button) => enableButton(button));
+      this.container.classList.toggle("run");
     }
   }
 
   gameStart() {
     this.timerId = setInterval(
-      () => {
-        if (!this.gameLive.nextTic()) {
-          this.startButtonClick();
-        }
-      },
-      1000 / (Number(this.speedElement.value) + 2),
+      this.gameStartFunction,
+      1000 / (Number(this.speedElement.value) + 5),
     );
   }
 
-  gameStop() {
-    if (this.timerId) clearInterval(this.timerId);
+  gameStartFunction() {
+    return () => {
+      if (this.gameLive.nextTic()) {
+        this.startButtonClick();
+      }
+    };
   }
 
-  createFiguresButtons() {
-    Object.keys(FIGURES).forEach((key) => {
-      const figure = FIGURES[key];
-
-      const button = document.createElement("button");
-      button.innerText = figure.name;
-      button.setAttribute("figureId", key);
-      button.classList.add("figure");
-      button.type = "button";
-
-      this.figuresBlock.appendChild(button);
-    })
-
-    this.figuresBlock.addEventListener("click", (event: MouseEvent) => {
-      if(event.target instanceof HTMLButtonElement){
-        event.stopPropagation();
-        const button = event.target as HTMLButtonElement;
-        Array.from(this.figuresBlock.children).filter(child => child instanceof HTMLButtonElement).forEach((child) => {
-          if(button!==child){
-            disableButton(child as HTMLButtonElement);
-          }
-        });
-        const stopShowingFunction = this.gameLive.showFigure(FIGURES[button.getAttribute("figureId")!]);
-
-        const onClick = (event2: MouseEvent) => {
-          event2.preventDefault();
-          stopShowingFunction();
-          
-          Array.from(this.figuresBlock.children).filter(child => child instanceof HTMLButtonElement).forEach((child) => {
-            enableButton(child as HTMLButtonElement);
-          });
-
-          window.removeEventListener("click", onClick);
-        };
-
-        window.addEventListener("click", onClick);
-      }
-    });
+  gameStop() {
+    if (this.timerId) {
+      clearInterval(this.timerId);
+      this.timerId = undefined;
+    }
   }
 }

@@ -2,16 +2,16 @@
 // eslint-disable-next-line no-shadow
 export enum CellType {
   dead = "dead",
-  alive = "alive"
-};
+  alive = "alive",
+}
 
 // eslint-disable-next-line no-shadow
 export enum MarkCellType {
   markForDead = "mark-for-dead",
   markForAlive = "mark-for-alive",
   markForDeadInvisible = "mark-for-dead-invisible",
-  markForAliveInvisible = "mark-for-alive-invisible"
-};
+  markForAliveInvisible = "mark-for-alive-invisible",
+}
 
 export default class Cell {
   readonly coorX: number;

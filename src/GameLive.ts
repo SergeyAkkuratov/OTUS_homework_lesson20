@@ -165,17 +165,17 @@ export default class GameLive {
 
     this.markGrid();
 
-    return this.cellToChangeNextTic.size > 0;
+    return this.cellToChangeNextTic.size === 0;
   }
 
   getCell(coorX: number, coorY: number): Cell {
     let x = coorX;
-    if (!(x >= 0 && coorX < this.width)) {
+    if (!(x >= 0 && x < this.width)) {
       if (x < 0) x = this.width - (-x % this.width);
       else x %= this.width;
     }
     let y = coorY;
-    if (!(y >= 0 && coorY < this.height)) {
+    if (!(y >= 0 && y < this.height)) {
       if (y < 0) y = this.height - (-y % this.height);
       else y %= this.height;
     }
@@ -216,7 +216,7 @@ export default class GameLive {
         );
         this.insertFigure(this.currentHoverCell, figure.coordinates);
       }
-    }
+    };
 
     const onMouseout = (event: MouseEvent) => {
       if (this.currentHoverCell) {
@@ -228,17 +228,17 @@ export default class GameLive {
         );
         this.insertFigure(this.currentHoverCell, figure.coordinates);
       }
-    }
+    };
 
     const stopShowing = () => {
-      this.container.removeEventListener('mouseover', onMouseover);
-      this.container.removeEventListener('mouseout', onMouseout);
+      this.container.removeEventListener("mouseover", onMouseover);
+      this.container.removeEventListener("mouseout", onMouseout);
       this.currentHoverCell = undefined;
-    }
+    };
 
-    this.container.addEventListener('mouseover', onMouseover);
+    this.container.addEventListener("mouseover", onMouseover);
 
-    this.container.addEventListener('mouseout', onMouseout);
+    this.container.addEventListener("mouseout", onMouseout);
 
     return stopShowing;
   }
