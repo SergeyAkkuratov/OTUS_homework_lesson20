@@ -271,7 +271,7 @@ export default class MainApp {
 
   gameStart() {
     this.timerId = setInterval(
-      this.gameStartFunction,
+      this.gameStartFunction(),
       1000 / (Number(this.speedElement.value) + 5),
     );
   }
