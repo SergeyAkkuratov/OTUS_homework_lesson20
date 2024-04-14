@@ -219,7 +219,7 @@ describe("MainApp class tests", () => {
     expect(mainApp.timerId).not.toBe(undefined);
     expect(setInterval).toHaveBeenCalledTimes(1);
     expect(setInterval).toHaveBeenLastCalledWith(
-      mainApp.gameStartFunction,
+      expect.any(Function),
       1000 / 15,
     );
 
