@@ -246,15 +246,37 @@ export default class MainApp {
 
       const button = document.createElement("button");
       button.innerText = figure.name;
+      button.setAttribute("figureId", key);
       button.classList.add("figure");
-      button.classList.add(key);
       button.type = "button";
-
-      button.addEventListener('click', () => {
-        this.gameLive.showInsertFigure(figure);
-      })
 
       this.figuresBlock.appendChild(button);
     })
+
+    this.figuresBlock.addEventListener("click", (event: MouseEvent) => {
+      if(event.target instanceof HTMLButtonElement){
+        event.stopPropagation();
+        const button = event.target as HTMLButtonElement;
+        Array.from(this.figuresBlock.children).filter(child => child instanceof HTMLButtonElement).forEach((child) => {
+          if(button!==child){
+            disableButton(child as HTMLButtonElement);
+          }
+        });
+        const stopShowingFunction = this.gameLive.showFigure(FIGURES[button.getAttribute("figureId")!]);
+
+        const onClick = (event2: MouseEvent) => {
+          event2.preventDefault();
+          stopShowingFunction();
+          
+          Array.from(this.figuresBlock.children).filter(child => child instanceof HTMLButtonElement).forEach((child) => {
+            enableButton(child as HTMLButtonElement);
+          });
+
+          window.removeEventListener("click", onClick);
+        };
+
+        window.addEventListener("click", onClick);
+      }
+    });
   }
 }

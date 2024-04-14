@@ -1,6 +1,6 @@
 import Cell, { CellType, MarkCellType } from "./Cell"
 
-describe("defaultCell class tests", () => {
+describe("Cell class tests", () => {
     let cell: Cell;
 
     function getCellElementWithType(x: number, y: number, type: string): HTMLElement {
@@ -69,7 +69,7 @@ describe("defaultCell class tests", () => {
         [MarkCellType.markForDead, CellType.alive, CellType.dead],
         [MarkCellType.markForAliveInvisible, CellType.dead, CellType.alive],
         [MarkCellType.markForDeadInvisible, CellType.alive, CellType.dead],
-    ])("Check mark changeType for %p", (markType: MarkCellType, startCellType: CellType, finishCellType: CellType)=>{
+    ])("Check processMark function for %p", (markType: MarkCellType, startCellType: CellType, finishCellType: CellType)=>{
         cell.type = startCellType;
         const element = getCellElementWithType(0,0, finishCellType);
 
@@ -77,6 +77,24 @@ describe("defaultCell class tests", () => {
         cell.processMark();
         
         expect(cell.type).toBe(finishCellType);
+        expect(cell.typeNextTic).toBe(undefined);
+        expect(cell.marked).toBe(false);
+        expect(cell.cellElement).toStrictEqual(element);
+    });
+
+    it("Check markClear function", () => {
+        const element = getCellElementWithType(0,0, CellType.dead);
+        element.classList.add(MarkCellType.markForAliveInvisible);
+
+        cell.mark(MarkCellType.markForAliveInvisible);
+        
+        expect(cell.typeNextTic).toBe(MarkCellType.markForAliveInvisible);
+        expect(cell.marked).toBe(true);
+        expect(cell.cellElement).toStrictEqual(element);
+
+        element.classList.remove(MarkCellType.markForAliveInvisible);
+        cell.markClear();
+
         expect(cell.typeNextTic).toBe(undefined);
         expect(cell.marked).toBe(false);
         expect(cell.cellElement).toStrictEqual(element);

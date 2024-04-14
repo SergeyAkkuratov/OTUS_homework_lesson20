@@ -3,23 +3,21 @@ import Cell, { CellType, MarkCellType } from "./Cell";
 import { Figure } from "./figures";
 
 export default class GameLive {
-  container: HTMLElement;
+  readonly container: HTMLElement;
+
+  readonly cellToMark: Set<Cell> = new Set();
+
+  readonly cellToChangeNextTic: Set<Cell> = new Set();
+
+  grid: Array<Array<Cell>> = [];
 
   width: number;
 
   height: number;
 
-  grid: Array<Array<Cell>> = [];
-
-  originalGrid: Array<Array<Cell>> = [];
+  currentHoverCell: Cell | undefined;
 
   markable: boolean;
-
-  cellToMark: Set<Cell> = new Set();
-
-  cellToChangeNextTic: Set<Cell> = new Set();
-
-  currentHoverCell: Cell | undefined;
 
   constructor(
     container: HTMLElement,
@@ -49,15 +47,20 @@ export default class GameLive {
   }
 
   fillGrid(width?: number, height?: number) {
+    this.cellToMark.clear();
+    this.cellToChangeNextTic.clear();
+    this.grid = [];
+
     this.width = width ?? this.width;
     this.height = height ?? this.height;
-    this.grid = [];
+
     for (let y = 0; y < this.height; y += 1) {
       this.grid[y] = [];
       for (let x = 0; x < this.width; x += 1) {
         this.grid[y][x] = new Cell(x, y);
       }
     }
+
     this.showGrid();
   }
 
@@ -111,6 +114,7 @@ export default class GameLive {
     });
 
     cells.forEach((cell) => {
+      cell.markClear();
       const aliveCellNeighbours = this.getCellNeighbours(cell).reduce(
         (result, el: Cell) =>
           el.type === CellType.alive ? result + 1 : result,
@@ -135,7 +139,7 @@ export default class GameLive {
   cellUpdateCheck(cell: Cell) {
     if (cell.type === CellType.alive) {
       this.cellToMark.add(cell);
-    } else if (cell.type === CellType.dead) {
+    } else {
       this.cellToMark.delete(cell);
     }
   }
@@ -165,24 +169,17 @@ export default class GameLive {
   }
 
   getCell(coorX: number, coorY: number): Cell {
-    const x =
-      coorX >= 0 && coorX < this.width
-        ? coorX
-        : coorX < 0
-          ? this.width + coorX
-          : coorX - this.width;
-    const y =
-      coorY >= 0 && coorY < this.height
-        ? coorY
-        : coorY < 0
-          ? this.height + coorY
-          : coorY - this.height;
-    const result: Cell = this.grid[y][x];
-    if (result == null || result === undefined) {
-      throw Error(`Не смогли получить клетку по координатам x: ${x}, y: ${y}`);
-    } else {
-      return result;
+    let x = coorX;
+    if (!(x >= 0 && coorX < this.width)) {
+      if (x < 0) x = this.width - (-x % this.width);
+      else x %= this.width;
     }
+    let y = coorY;
+    if (!(y >= 0 && coorY < this.height)) {
+      if (y < 0) y = this.height - (-y % this.height);
+      else y %= this.height;
+    }
+    return this.grid[y][x];
   }
 
   insertFigure(startCell: Cell, figureCoor: string) {
@@ -209,7 +206,7 @@ export default class GameLive {
     });
   }
 
-  showInsertFigure(figure: Figure) {
+  showFigure(figure: Figure) {
     const onMouseover = (event: MouseEvent) => {
       if (!this.currentHoverCell) {
         const element = event.target as HTMLElement;
@@ -225,33 +222,24 @@ export default class GameLive {
       if (this.currentHoverCell) {
         this.deleteFigure(this.currentHoverCell, figure.coordinates);
         const element = event.relatedTarget as HTMLElement;
-        if (element?.tagName === 'CELL') {
-          this.currentHoverCell = this.getCell(
-            Number(element.getAttribute("coor-x")),
-            Number(element.getAttribute("coor-y")),
-          );
-          this.insertFigure(this.currentHoverCell, figure.coordinates);
-        } else {
-          this.currentHoverCell = undefined;
-          this.originalGrid = [];
-        }
+        this.currentHoverCell = this.getCell(
+          Number(element.getAttribute("coor-x")),
+          Number(element.getAttribute("coor-y")),
+        );
+        this.insertFigure(this.currentHoverCell, figure.coordinates);
       }
     }
 
-    const onClick = (event: MouseEvent) => {
-      if(this.currentHoverCell){
-        event.preventDefault();
-        this.container.removeEventListener('mouseover', onMouseover);
-        this.container.removeEventListener('mouseout', onMouseout);
-        this.currentHoverCell = undefined;
-        window.removeEventListener("click", onClick);
-      }
+    const stopShowing = () => {
+      this.container.removeEventListener('mouseover', onMouseover);
+      this.container.removeEventListener('mouseout', onMouseout);
+      this.currentHoverCell = undefined;
     }
-    
+
     this.container.addEventListener('mouseover', onMouseover);
 
     this.container.addEventListener('mouseout', onMouseout);
 
-    window.addEventListener("click", onClick);
+    return stopShowing;
   }
 }

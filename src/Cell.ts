@@ -75,9 +75,15 @@ export default class Cell {
         this.setType(CellType.dead);
         break;
     }
+    this.markClear();
+  }
+
+  markClear() {
     this.marked = false;
     this.typeNextTic = undefined;
     this.cellElement.classList.remove(MarkCellType.markForAlive);
+    this.cellElement.classList.remove(MarkCellType.markForAliveInvisible);
     this.cellElement.classList.remove(MarkCellType.markForDead);
+    this.cellElement.classList.remove(MarkCellType.markForDeadInvisible);
   }
 }
