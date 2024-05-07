@@ -1,0 +1,73 @@
+:root {
+  --cell-size: 20px;
+  --field-width: 40;
+  --field-height: 25;
+}
+
+.main {
+  overflow: auto;
+  margin: 0 auto;
+  padding: 2rem 2rem;
+  border: 3px solid #333333;
+  border-radius: 2% 6% 5% 4% / 1% 1% 2% 4%;
+}
+
+.run {
+  background-color: #696969;
+}
+
+.settings-block {
+  padding: 4px 4px;
+}
+
+.cell-legend {
+  display: inline-block;
+  width: var(--cell-size);
+  height: var(--cell-size);
+  border: 1px solid #333333;
+  border-radius: 10% 10% 10% 10%;
+}
+
+.live-game-container {
+  width: fit-content;
+  overflow: auto;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(var(--field-width), auto);
+  grid-template-rows: repeat(var(--field-height), auto);
+  gap: 0;
+}
+
+.cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  border: 1px solid #333333;
+}
+
+.cell:hover {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  border: 1px solid #333333;
+  border-radius: 10% 10% 10% 10%;
+  background-color: aqua;
+}
+
+.dead {
+  background-color: aliceblue;
+}
+
+.alive {
+  background-color: black;
+}
+
+.mark-for-dead {
+  background-color: grey;
+}
+
+.mark-for-alive {
+  background-color: blue;
+}
+
+.invisible {
+  display: none;
+}
