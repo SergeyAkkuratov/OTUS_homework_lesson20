@@ -8,6 +8,9 @@
   </p>
 </p>
 
+[![Check, Build and GitHub Pages deploy](https://github.com/SergeyAkkuratov/OTUS_homework_lesson20/actions/workflows/pull_request_check.yml/badge.svg?branch=main)](https://github.com/SergeyAkkuratov/OTUS_homework_lesson20/actions/workflows/pull_request_check.yml)
+![Contributors](https://img.shields.io/github/contributors/SergeyAkkuratov/OTUS_homework_lesson20?color=dark-green) ![Issues](https://img.shields.io/github/issues/SergeyAkkuratov/OTUS_homework_lesson20)
+
 ![Typescript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
 
 ## Содержание
@@ -46,7 +49,7 @@ npm start
 
 Приложение будет доступно по адресу http://localhost:8080/.
 
-Так же попробовать приложение можно [онлайн](https://sergeyakkuratov.github.io/OTUS_homework_lesson34/).
+Так же попробовать приложение можно [онлайн](https://sergeyakkuratov.github.io/OTUS_homework_lesson20/).
 
 ## Использование
 
